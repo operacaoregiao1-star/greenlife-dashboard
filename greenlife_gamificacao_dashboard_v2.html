@@ -1,27 +1,22 @@
-<!-- Tabelas de resultados carregadas direto do Google Sheets (CSV público) -->
 <div style="max-width:1100px;margin:20px auto;font-family:system-ui,Arial;">
-  <h2 style="margin:8px 0;">Ranking Semanal</h2>
-  <div id="tabela-semanal" style="overflow:auto;border:1px solid #ddd;border-radius:8px;"></div>
-
-  <h2 style="margin:24px 0 8px;">Ranking Mensal</h2>
-  <div id="tabela-mensal" style="overflow:auto;border:1px solid #ddd;border-radius:8px;"></div>
+  <h2 style="margin:8px 0;">Resultados (ao vivo da planilha)</h2>
+  <div id="tabela" style="overflow:auto;border:1px solid #ddd;border-radius:8px;"></div>
 </div>
 
 <script>
-  // >>> COLE AQUI AS SUAS URLs PUBLICADAS COMO CSV <<<
-  const URL_SEMANAL = https://docs.google.com/spreadsheets/d/e/2PACX-1vRwUmtRBRPis65TuPuubKW9-XL7G7RUbtsp9RI5fjBtZXTmti5A2Ro71tdg0NIJCjhBVYp3jk-DqEoM/pub?gid=1310027705&single=true&output=csv;
-  const URL_MENSAL  = https://docs.google.com/spreadsheets/d/e/2PACX-1vRwUmtRBRPis65TuPuubKW9-XL7G7RUbtsp9RI5fjBtZXTmti5A2Ro71tdg0NIJCjhBVYp3jk-DqEoM/pub?gid=59695337&single=true&output=csv;
+  // Seu CSV público:
+  const URL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRwUmtRBRPis65TuPuubKW9-XL7G7RUbtsp9RI5fjBtZXTmti5A2Ro71tdg0NIJCjhBVYp3jk-DqEoM/pub?gid=59695337&single=true&output=csv';
 
-  // Busca SEM cache (adiciona ?t=timestamp e pede 'no-store')
+  // Busca SEM cache (força atualização sempre que abrir/atualizar a página)
   async function fetchCSV(url) {
     const sep = url.includes('?') ? '&' : '?';
     const finalUrl = `${url}${sep}t=${Date.now()}`;
     const res = await fetch(finalUrl, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
-    if (!res.ok) throw new Error('Erro ao baixar CSV: ' + res.status);
+    if (!res.ok) throw new Error('Falha ao baixar CSV: ' + res.status);
     return res.text();
   }
 
-  // Parse simples (ok se não houver vírgulas dentro das células)
+  // Parse simples de CSV (ok se não houver vírgulas dentro das células)
   function parseCSV(text) {
     return text.trim().split(/\r?\n/).map(l => l.split(','));
   }
@@ -52,28 +47,21 @@
     el.appendChild(table);
   }
 
-  async function loadAll() {
+  async function carregar() {
     try {
-      const sem = await fetchCSV(URL_SEMANAL);
-      renderTable(parseCSV(sem), 'tabela-semanal');
+      const csv = await fetchCSV(URL_CSV);
+      const rows = parseCSV(csv);
+      renderTable(rows, 'tabela');
     } catch (e) {
       console.error(e);
-      document.getElementById('tabela-semanal').textContent = 'Erro ao carregar semanal.';
-    }
-
-    try {
-      const men = await fetchCSV(URL_MENSAL);
-      renderTable(parseCSV(men), 'tabela-mensal');
-    } catch (e) {
-      console.error(e);
-      document.getElementById('tabela-mensal').textContent = 'Erro ao carregar mensal.';
+      document.getElementById('tabela').textContent = 'Erro ao carregar dados.';
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadAll);
+  document.addEventListener('DOMContentLoaded', carregar);
 
   // (Opcional) Atualiza sozinho a cada 2 minutos:
-  // setInterval(loadAll, 2 * 60 * 1000);
+  // setInterval(carregar, 2 * 60 * 1000);
 </script>
 </body>
 </html>
