@@ -9,4 +9,4 @@ export async function onRequestGet() {
       "access-control-allow-origin": "*"
     }
   });
-}
+
