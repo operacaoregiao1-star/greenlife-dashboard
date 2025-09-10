@@ -1,5 +1,5 @@
-const SHEET_ID = "1UEHkSZkheBfwQpMe_BJNkrn_V-6lchDedHXEJ7zHVIY";
-const GID = "59695337"; 
+const SHEET_ID = "1UEHkSZkheBfwQpMe_BJNkrn_V-6lchDedHXEJ7zHVIY/edit";
+const GID = "1310027705"; 
 
 function csvToJson(csv) {
   const lines = csv.replace(/\r/g, "").split("\n").filter(Boolean);
